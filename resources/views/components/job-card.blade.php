@@ -1,5 +1,5 @@
 @props(['x'])
-<div class="flex flex-col text-center bg-white/5 rounded-xl border border-transparent hover:border-blue-800 group transtiion duration-300">
+<div class="flex flex-col text-center bg-white/5 rounded-xl border border-transparent hover:border-blue-800 group transtiion duration-300 p-5">
 <div class="self-start text-sm">
     {{$x->employer->name}}
 </div>

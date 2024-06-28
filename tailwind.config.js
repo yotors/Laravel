@@ -7,7 +7,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        black: '#060606' 
+        black: '#113040' 
       },
       fontSize: {
         '2xs':'0.625rem'

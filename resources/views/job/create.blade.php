@@ -16,7 +16,7 @@
 
         <x-forms.divider />
 
-        <x-forms.input label="Tags (comma separated)" name="tags" placeholder="video, education" />
+        <x-forms.input label="Tags" name="tags" placeholder="video, education" />
 
         <x-forms.input label="Job Description" name="discription" placeholder="This job is ..."/>
 

@@ -7,7 +7,7 @@
     <title>Pixel Job</title>
     @Vite(['resources/css/app.css','resources/js/app.js'])
 </head>
-<body class="bg-black text-white">
+<body class="bg-black text-white mb-10">
     <div class="px-10">
         <nav class="flex justify-between items-center px-2 py-4 border-b border-white/10">
             <div>
