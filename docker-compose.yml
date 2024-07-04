@@ -15,19 +15,10 @@ services:
       - ./:/var/www
     networks:
       - laravel
-  db:
-    image: mysql:8.0
-    container_name: my_sql1
-    restart: unless-stopped
-    environment:
-      MYSQL_DATABASE:
-      MYSQL_ROOT_PASSWORD: 
-      MYSQL_PASSWORD: 
-      MYSQL_USER: 
-      SERVICE_TAGS: dev
-      SERVICE_NAME: mysql
+  destination-sqlite:
+    image: airbyte/destination-sqlite:latest
     volumes:
-      - ./docker-compose/mysql:/docker-entrypoint-initdb.d
+      - ./docker-compose/sqlite:/docker-entrypoint-initdb.d
     networks:
       - laravel
   nginx:
