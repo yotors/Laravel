@@ -10,7 +10,7 @@ RUN apt update && apt install -y \
     zip \
     unzip # Added zip/unzip as they are often needed with composer
 RUN apt clean && rm -rf /var/lib/apt/lists/*
-RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
+RUN docker-php-ext-install pdo_mysql pdo_pgsql mbstring exif pcntl bcmath gd
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 RUN echo "User: $user, UID: $uid"
 

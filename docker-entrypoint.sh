@@ -24,14 +24,20 @@ if [ -f ".env" ]; then
 fi
 
 
-echo "Running database migrations..."
-php artisan migrate --force
+# Migrations will be handled by Fly.io's release_command or a similar mechanism.
+# echo "Running database migrations..."
+# php artisan migrate --force
 
 # # Optional: Clear and cache configuration (can be beneficial in production)
 # # Consider if this should be run here or as part of a build/deploy script
 # # php artisan config:cache
 # # php artisan route:cache
 # # php artisan view:cache
+
+echo "Caching Laravel configurations..."
+php artisan config:cache
+echo "Caching Laravel routes..."
+php artisan route:cache
 
 echo "Starting PHP-FPM..."
 # Execute the command passed to the entrypoint (which is php-fpm by default from the CMD in Dockerfile)
