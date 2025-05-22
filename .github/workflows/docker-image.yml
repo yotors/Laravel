@@ -6,13 +6,43 @@ on:
   pull_request:
     branches: [ "main" ]
 
+env:
+  IMAGE_NAME: ghcr.io/${{ github.repository }}
+
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
 
     steps:
     - uses: actions/checkout@v4
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+
+    - name: Run tests
+      run: |
+        # Build the image for testing
+        docker build . --file Dockerfile --tag ${{ env.IMAGE_NAME }}:test-${{ github.sha }}
+        # Run the container, the entrypoint will set up .env, key, and migrations.
+        # Then, 'php artisan test' is executed instead of the default CMD (php-fpm).
+        docker run --name testapp ${{ env.IMAGE_NAME }}:test-${{ github.sha }} php artisan test
+
+    - name: Log in to GitHub Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Build and tag Docker image
+      run: |
+        docker build . --file Dockerfile \
+          --tag ${{ env.IMAGE_NAME }}:${{ github.sha }} \
+          --tag ${{ env.IMAGE_NAME }}:latest \
+          --label org.opencontainers.image.revision=${{ github.sha }}
+
+    - name: Push Docker image to GitHub Container Registry
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      run: |
+        docker push ${{ env.IMAGE_NAME }}:${{ github.sha }}
+        docker push ${{ env.IMAGE_NAME }}:latest
