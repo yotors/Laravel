@@ -1,0 +1,53 @@
+# render.yaml
+# Defines the services for the Laravel application on Render.
+# See https://render.com/docs/blueprint-spec for the full reference.
+
+databases:
+  # --------------------------------------
+  # PostgreSQL Database Service
+  # --------------------------------------
+  - name: laravel-db 
+    region: oregon # User should verify/choose their preferred region
+    plan: free 
+    postgresMajorVersion: "16"
+
+services:
+  # --------------------------------------
+  # Laravel Web Service (from Docker Image)
+  # --------------------------------------
+  - type: web 
+    name: laravel # Service name, used in APP_URL
+    region: oregon # User should verify/choose their preferred region, same as DB
+    plan: free 
+    runtime: image # Corrected: Use 'image' for prebuilt images
+    image:
+      url: ghcr.io/yotors/Laravel:latest # Reverted to original case
+      creds: 
+        fromRegistryCreds:
+          name: Job # User-provided
+    healthCheckPath: /health 
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false" 
+      - key: APP_URL
+        # User should verify 'laravel' here matches the 'name' of this web service.
+        value: https://laravel.onrender.com 
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_URL
+        fromDatabase:
+          name: laravel-db 
+          property: connectionString
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: SESSION_DRIVER
+        value: database
+      - key: CACHE_STORE
+        value: database
+      - key: QUEUE_CONNECTION
+        value: database 
+    # APP_KEY must be set as a secret in the Render dashboard.
+    # preDeployCommand was removed due to free tier limitations.
+    # Migrations are now in docker-entrypoint.sh.

@@ -25,3 +25,7 @@ Route::middleware('auth')->group(function(){
     Route::delete('/jobs/{job}', [JobController::class, 'destroy']);
     Route::get('/jobs/{job}', [JobController::class, 'show']);
 });
+
+Route::get('/health', function () {
+    return response()->json(['status' => 'ok']);
+});
