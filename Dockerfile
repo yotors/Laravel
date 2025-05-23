@@ -8,9 +8,15 @@ RUN apt update && apt install -y \
     libonig-dev \
     libxml2-dev \
     zip \
-    unzip # Added zip/unzip as they are often needed with composer
+    unzip \
+    # Added libraries for PHP extensions:
+    libzip-dev \
+    libjpeg62-turbo-dev \
+    libfreetype6-dev \
+    libpq-dev \
+    default-libmysqlclient-dev
 RUN apt clean && rm -rf /var/lib/apt/lists/*
-RUN docker-php-ext-install pdo_mysql pdo_pgsql mbstring exif pcntl bcmath gd
+RUN docker-php-ext-install pdo_mysql pdo_pgsql mbstring exif pcntl bcmath gd zip
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 RUN echo "User: $user, UID: $uid"
 
