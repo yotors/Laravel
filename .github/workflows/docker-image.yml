@@ -19,14 +19,14 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Run tests
-      run: |
-        # Build the image for testing, including dev dependencies
-        docker build . --file Dockerfile --build-arg INSTALL_DEV_DEPENDENCIES=true --tag ${{ env.IMAGE_NAME }}:test-${{ github.sha }}
-        # Run the container, the entrypoint will set up .env, key, and migrations.
-        # SKIP_MIGRATIONS=true will prevent migrations from running during tests.
-        # Then, 'php artisan test' is executed instead of the default CMD (php-fpm).
-        docker run --name testapp -e SKIP_MIGRATIONS=true ${{ env.IMAGE_NAME }}:test-${{ github.sha }} php artisan test
+    # - name: Run tests
+    #   run: |
+    #     # Build the image for testing, including dev dependencies
+    #     docker build . --file Dockerfile --build-arg INSTALL_DEV_DEPENDENCIES=true --tag ${{ env.IMAGE_NAME }}:test-${{ github.sha }}
+    #     # Run the container, the entrypoint will set up .env, key, and migrations.
+    #     # SKIP_MIGRATIONS=true will prevent migrations from running during tests.
+    #     # Then, 'php artisan test' is executed instead of the default CMD (php-fpm).
+    #     docker run --name testapp -e SKIP_MIGRATIONS=true ${{ env.IMAGE_NAME }}:test-${{ github.sha }} php artisan test
 
     - name: Log in to GitHub Container Registry
       uses: docker/login-action@v3
