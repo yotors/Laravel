@@ -5,19 +5,18 @@
 # Replace placeholders like <your-github-username-or-org>/<your-repo-name>
 # and <your-render-ghcr-credential-name> with actual values.
 
-services:
+databases: # Top-level key for database definitions
   # --------------------------------------
   # PostgreSQL Database Service
   # --------------------------------------
-  - type: pserv # PostgreSQL Service
-    name: laravel-db # You can customize this name (e.g., myapp-db)
+  - name: laravel-db # You can customize this name (e.g., myapp-db)
     region: oregon # Choose your preferred region: oregon, frankfurt, ohio, singapore, virginia
     plan: free # Uses the free plan for PostgreSQL.
                # REMEMBER: Free PostgreSQL on Render expires after 30 days.
-               # Data will be lost unless upgraded to a paid plan.
-    # ipAllowList: [] # Default allows connections from other Render services in your account.
     postgresMajorVersion: "16" # Specify desired PostgreSQL major version
+    # ipAllowList: [] # Default allows connections from other Render services in your account.
 
+services:
   # --------------------------------------
   # Laravel Web Service (from Docker Image)
   # --------------------------------------
@@ -31,19 +30,13 @@ services:
       # URL of the Docker image in GitHub Container Registry (GHCR)
       # Replace with your actual image path from GHCR.
       # Example: ghcr.io/your-github-username/your-repo-name:latest
-      # Using a specific SHA tag (e.g., :${{ github.sha }}) is recommended for immutable deploys.
       url: ghcr.io/<your-github-username-or-org>/<your-repo-name>:latest
-    registryCredential:
-      # Name of the registry credential you create in the Render dashboard for GHCR.
-      # 1. Create a GitHub Personal Access Token (PAT) with `read:packages` scope.
-      # 2. In Render: Team Settings -> Container Registry Credentials -> Add Credential.
-      #    Use 'GitHub Container Registry' as registry, your GitHub username, and the PAT.
-      #    Provide the name you gave this credential here.
-      name: <your-render-ghcr-credential-name> # Example: my-ghcr-creds
-    healthCheck:
-      path: /health # Health check endpoint in your Laravel app
-      port: 80 # Internal port Nginx listens on in the Docker container
-      initialDelaySeconds: 60 # Increased delay for Laravel to boot and entrypoint scripts to run
+      creds: # Corrected structure for registry credentials
+        fromRegistryCreds:
+          # Name of the registry credential you create in the Render dashboard for GHCR.
+          name: <your-render-ghcr-credential-name> # Example: my-ghcr-creds
+    healthCheckPath: /health # Corrected health check: path to the endpoint. Render uses default interval/timeout.
+                             # initialDelaySeconds can be configured in the dashboard for the service.
     envVars:
       - key: APP_ENV
         value: production
@@ -56,8 +49,6 @@ services:
         value: https://laravel-app.onrender.com
       - key: DB_CONNECTION
         value: pgsql
-      # DB_URL will be populated by the 'fromDatabase' directive below,
-      # providing the connection string for the PostgreSQL service.
       - key: DB_URL
         fromDatabase:
           name: laravel-db # Must match the 'name' of your PostgreSQL service defined above
@@ -71,9 +62,5 @@ services:
       - key: QUEUE_CONNECTION
         value: database # Use 'sync' for free tier if not running background workers
       # APP_KEY must be set as a secret in the Render dashboard environment settings for this service.
-      # Generate one using: php artisan key:generate --show
     preDeployCommand: "php artisan migrate --force" # Runs migrations before new version is live
-    # The container's CMD (from Dockerfile) will be used to start the app (php-fpm).
-    # Render typically auto-detects the port (80 for Nginx in our container).
-    # If needed, you can explicitly set:
-    # containerPort: 80
+    # containerPort: 80 # Render usually auto-detects this from Dockerfile EXPOSE. Uncomment if needed.
