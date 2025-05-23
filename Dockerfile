@@ -1,6 +1,7 @@
 FROM php:8.2-fpm
 ARG user=defaultuser
 ARG uid=1000
+ARG INSTALL_DEV_DEPENDENCIES=false
 RUN apt update && apt install -y \
     git \
     curl \
@@ -30,7 +31,13 @@ WORKDIR /var/www
 
 # Copy composer files and install dependencies as root
 COPY composer.json composer.lock ./
-RUN composer install --no-dev --no-scripts --optimize-autoloader
+RUN if [ "$INSTALL_DEV_DEPENDENCIES" = "true" ]; then \
+              echo "Installing ALL Composer dependencies (including dev)..."; \
+              composer install --no-scripts --optimize-autoloader; \
+            else \
+              echo "Installing Composer dependencies WITHOUT dev dependencies..."; \
+              composer install --no-dev --no-scripts --optimize-autoloader; \
+            fi
 
 # Copy the rest of the application files
 COPY . .

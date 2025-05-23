@@ -21,8 +21,8 @@ jobs:
 
     - name: Run tests
       run: |
-        # Build the image for testing
-        docker build . --file Dockerfile --tag ${{ env.IMAGE_NAME }}:test-${{ github.sha }}
+        # Build the image for testing, including dev dependencies
+        docker build . --file Dockerfile --build-arg INSTALL_DEV_DEPENDENCIES=true --tag ${{ env.IMAGE_NAME }}:test-${{ github.sha }}
         # Run the container, the entrypoint will set up .env, key, and migrations.
         # SKIP_MIGRATIONS=true will prevent migrations from running during tests.
         # Then, 'php artisan test' is executed instead of the default CMD (php-fpm).
