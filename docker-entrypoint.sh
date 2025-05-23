@@ -8,31 +8,19 @@ cd /var/www
 if [ ! -f ".env" ]; then
   echo "Creating .env file from .env.example"
   cp .env.example .env
-  # Generate app key only if we just created the .env file
   echo "Generating APP_KEY..."
   php artisan key:generate --force
-fi
-
-# Optional: Check if APP_KEY is empty in existing .env and generate if needed
-if [ -f ".env" ]; then
-  # Read APP_KEY from .env file
+else
+  # Check if APP_KEY is empty in existing .env and generate if needed
   APP_KEY_VALUE=$(grep '^APP_KEY=' .env | cut -d '=' -f2-)
   if [ -z "$APP_KEY_VALUE" ]; then
-    echo "APP_KEY is empty. Generating APP_KEY..."
+    echo "APP_KEY is empty in existing .env. Generating APP_KEY..."
     php artisan key:generate --force
   fi
 fi
 
-
-# Migrations will be handled by Fly.io's release_command or a similar mechanism.
-# echo "Running database migrations..."
-# php artisan migrate --force
-
-# # Optional: Clear and cache configuration (can be beneficial in production)
-# # Consider if this should be run here or as part of a build/deploy script
-# # php artisan config:cache
-# # php artisan route:cache
-# # php artisan view:cache
+echo "Running database migrations..."
+php artisan migrate --force
 
 echo "Caching Laravel configurations..."
 php artisan config:cache

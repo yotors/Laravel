@@ -62,5 +62,4 @@ services:
       - key: QUEUE_CONNECTION
         value: database # Use 'sync' for free tier if not running background workers
       # APP_KEY must be set as a secret in the Render dashboard environment settings for this service.
-    preDeployCommand: "php artisan migrate --force" # Runs migrations before new version is live
     # containerPort: 80 # Render usually auto-detects this from Dockerfile EXPOSE. Uncomment if needed.
