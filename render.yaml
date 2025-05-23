@@ -21,7 +21,7 @@ services:
     plan: free 
     runtime: image # Corrected: Use 'image' for prebuilt images
     image:
-      url: ghcr.io/yotors/Laravel:latest # User-provided
+      url: ghcr.io/yotors/laravel:latest # Corrected to lowercase repository name
       creds: 
         fromRegistryCreds:
           name: Job # User-provided
