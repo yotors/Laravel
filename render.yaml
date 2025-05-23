@@ -2,56 +2,43 @@
 # Defines the services for the Laravel application on Render.
 # See https://render.com/docs/blueprint-spec for the full reference.
 
-# Replace placeholders like <your-github-username-or-org>/<your-repo-name>
-# and <your-render-ghcr-credential-name> with actual values.
-
-databases: # Top-level key for database definitions
+databases:
   # --------------------------------------
   # PostgreSQL Database Service
   # --------------------------------------
-  - name: laravel-db # You can customize this name (e.g., myapp-db)
-    region: oregon # Choose your preferred region: oregon, frankfurt, ohio, singapore, virginia
-    plan: free # Uses the free plan for PostgreSQL.
-               # REMEMBER: Free PostgreSQL on Render expires after 30 days.
-    postgresMajorVersion: "16" # Specify desired PostgreSQL major version
-    # ipAllowList: [] # Default allows connections from other Render services in your account.
+  - name: laravel-db 
+    region: oregon # User should verify/choose their preferred region
+    plan: free 
+    postgresMajorVersion: "16"
 
 services:
   # --------------------------------------
   # Laravel Web Service (from Docker Image)
   # --------------------------------------
-  - type: web # Web Service
-    name: laravel-app # You can customize this name (e.g., myapp-web)
-    region: oregon # IMPORTANT: Use the same region as your database for low latency.
-    plan: free # Uses the free plan for Web Services.
-               # REMEMBER: Free web services spin down after 15 mins of inactivity.
-    env: docker # Specify Docker environment
+  - type: web 
+    name: laravel # Service name, used in APP_URL
+    region: oregon # User should verify/choose their preferred region, same as DB
+    plan: free 
+    runtime: image # Corrected: Use 'image' for prebuilt images
     image:
-      # URL of the Docker image in GitHub Container Registry (GHCR)
-      # Replace with your actual image path from GHCR.
-      # Example: ghcr.io/your-github-username/your-repo-name:latest
-      url: ghcr.io/<your-github-username-or-org>/<your-repo-name>:latest
-      creds: # Corrected structure for registry credentials
+      url: ghcr.io/yotors/Laravel:latest # User-provided
+      creds: 
         fromRegistryCreds:
-          # Name of the registry credential you create in the Render dashboard for GHCR.
-          name: <your-render-ghcr-credential-name> # Example: my-ghcr-creds
-    healthCheckPath: /health # Corrected health check: path to the endpoint. Render uses default interval/timeout.
-                             # initialDelaySeconds can be configured in the dashboard for the service.
+          name: Job # User-provided
+    healthCheckPath: /health 
     envVars:
       - key: APP_ENV
         value: production
       - key: APP_DEBUG
-        value: "false" # Must be the string "false"
+        value: "false" 
       - key: APP_URL
-        # Render provides a default URL like https://your-service-name.onrender.com
-        # It's good to set this explicitly once your service name is known.
-        # Replace 'laravel-app' with the 'name' of this web service.
-        value: https://laravel-app.onrender.com
+        # User should verify 'laravel' here matches the 'name' of this web service.
+        value: https://laravel.onrender.com 
       - key: DB_CONNECTION
         value: pgsql
       - key: DB_URL
         fromDatabase:
-          name: laravel-db # Must match the 'name' of your PostgreSQL service defined above
+          name: laravel-db 
           property: connectionString
       - key: LOG_CHANNEL
         value: stderr
@@ -60,6 +47,7 @@ services:
       - key: CACHE_STORE
         value: database
       - key: QUEUE_CONNECTION
-        value: database # Use 'sync' for free tier if not running background workers
-      # APP_KEY must be set as a secret in the Render dashboard environment settings for this service.
-    # containerPort: 80 # Render usually auto-detects this from Dockerfile EXPOSE. Uncomment if needed.
+        value: database 
+    # APP_KEY must be set as a secret in the Render dashboard.
+    # preDeployCommand was removed due to free tier limitations.
+    # Migrations are now in docker-entrypoint.sh.
