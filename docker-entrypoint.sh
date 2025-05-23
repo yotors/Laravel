@@ -20,8 +20,36 @@ else
 fi
 
 if [ "$SKIP_MIGRATIONS" != "true" ]; then
-  echo "Running database migrations..."
-  php artisan migrate --force
+  echo "Attempting to run database migrations..."
+  
+  max_attempts=5
+  attempt_num=1
+  delay_seconds=15
+  migration_success=false
+
+  while [ $attempt_num -le $max_attempts ]; do
+    echo "Migration attempt #$attempt_num of $max_attempts..."
+    if php artisan migrate --force; then
+      migration_success=true
+      echo "Migrations successful."
+      break
+    else
+      echo "Migration attempt #$attempt_num failed."
+      if [ $attempt_num -lt $max_attempts ]; then
+        echo "Waiting $delay_seconds seconds before next attempt..."
+        sleep $delay_seconds
+      else
+        echo "All migration attempts failed."
+      fi
+    fi
+    attempt_num=$((attempt_num + 1))
+  done
+
+  if [ "$migration_success" != "true" ]; then
+    echo "ERROR: Database migrations failed after $max_attempts attempts. Please check the logs."
+    # Optionally, exit 1 here if you want the container to fail loudly if migrations don't pass
+    # exit 1 
+  fi
 else
   echo "SKIP_MIGRATIONS is set to true, skipping migrations."
 fi
