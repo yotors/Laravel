@@ -19,8 +19,12 @@ else
   fi
 fi
 
-echo "Running database migrations..."
-php artisan migrate --force
+if [ "$SKIP_MIGRATIONS" != "true" ]; then
+  echo "Running database migrations..."
+  php artisan migrate --force
+else
+  echo "SKIP_MIGRATIONS is set to true, skipping migrations."
+fi
 
 echo "Caching Laravel configurations..."
 php artisan config:cache
